@@ -92,7 +92,6 @@ set(SOURCE_FILES
     sofa/gpu/cuda/CudaCollision.cpp
     sofa/gpu/cuda/CudaDiagonalMass.cpp
     sofa/gpu/cuda/CudaEllipsoidForceField.cpp
-    sofa/gpu/cuda/CudaExtraMonitor.cpp
     sofa/gpu/cuda/CudaFixedConstraint.cpp
     sofa/gpu/cuda/CudaFixedTranslationConstraint.cpp
     sofa/gpu/cuda/CudaHexahedronTLEDForceField.cpp
@@ -171,7 +170,7 @@ else()
     )
 endif()
 
-set(README_FILES SofaCUDA.txt)
+set(README_FILES README.md)
 
 find_package(CUDA REQUIRED)
 
@@ -182,11 +181,17 @@ find_package(SofaUserInteraction REQUIRED)
 find_package(SofaNonUniformFem REQUIRED)
 find_package(SofaMiscMapping REQUIRED)
 find_package(SofaMiscFem REQUIRED)
-find_package(SofaValidation REQUIRED)
 find_package(SofaMiscForceField REQUIRED)
 find_package(SofaGeneralObjectInteraction REQUIRED)
 
 find_package(VolumetricRendering QUIET)
+find_package(SofaValidation QUIET)
+
+if(SofaValidation_FOUND)
+    list(APPEND SOURCE_FILES sofa/gpu/cuda/CudaExtraMonitor.cpp)
+else()
+    message(STATUS "SofaCUDA: Plugin SofaValidation was not enabled/found, therefore CudaExtraMonitor will not be compiled.")
+endif()
 
 if(VolumetricRendering_FOUND)
     list(APPEND HEADER_FILES sofa/gpu/cuda/CudaTetrahedralVisualModel.h)
@@ -334,7 +339,6 @@ target_link_libraries(${PROJECT_NAME}
     SofaNonUniformFem
     SofaMiscMapping
     SofaMiscFem
-    SofaValidation
     SofaMiscForceField
     SofaGeneralObjectInteraction
     )
@@ -351,6 +355,10 @@ endif()
 
 if(MiniFlowVR_FOUND)
     target_link_libraries(${PROJECT_NAME} miniFlowVR)
+endif()
+
+if(SofaValidation_FOUND)
+    target_link_libraries(${PROJECT_NAME} SofaValidation)
 endif()
 
 
